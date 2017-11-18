@@ -20,28 +20,82 @@
 			link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
 			document.getElementsByTagName( 'head' )[0].appendChild( link );
 		</script>
+		
+		<style type="text/css">
+		  div.longlist {
+			font-size: 70%;
+		  }
+		  p.link {
+			font-size: 50%;
+		  }
+		</style>
 	</head>
 	<body>
 		<div class="reveal">
-			<div class="slides">
+			<div class="slides">		
 				<section>
 					<p>Wie lang sollte das Aufsetzen eines Buildservers dauern?</p>
 					<p><font size="5">Ein Docker Erfahrungsbericht</font></p>
+				</section>			
+				<section>
+					<p>The Joel Test</p>
+					<div class="longlist">					
+						<ol>
+							<li>Do you use source control?</li>
+							<li>Can you make a build in one step?</li>
+							<li><font color="red">Do you make daily builds?</font></li>
+							<li>Do you have a bug database?</li>
+							<li>Do you fix bugs before writing new code?</li>
+							<li>Do you have an up-to-date schedule?</li>
+							<li>Do you have a spec?</li>
+							<li>Do programmers have quiet working conditions?</li>
+							<li>Do you use the best tools money can buy?</li>
+							<li>Do you have testers?</li>
+							<li>Do new candidates write code during their interview?</li>
+							<li>Do you do hallway usability testing?</li>
+						</ol>
+					</div>
+					<p class="link">https://www.joelonsoftware.com/2000/08/09/the-joel-test-12-steps-to-better-code/</p>
+				</section>
+				<section>					
+					<ol>
+						<li>dotnet framework(s) installieren</li>
+						<li>MSBuildtool(s) installieren</li>
+						<li>Portable class library tools installieren </li>
+						<li>dotnet framework deverloper pack installieren</li>
+						<li>"C:\Program Files (x86)\MSBuild" von Entwickler Rechner auf Buildrechner kopieren</li>
+						<li>"C:\Program Files (x86)\Reference Assemblies" von Entwickler Rechner auf Buildrechner kopieren</li>
+					</ol>
 				</section>
 				<section>
-					<p>ungefähr 30 Sekunden</p>
+					<ul>
+						<li>... VCS client</li>
+						<li>node js</li>
+						<li>headless Chrome für Javascript Integrationstests</li>
+						<li> ... </li>
+					</ul>
 				</section>
 				<section>
-					<p>Motivation: Build Agents</p>
+					<ol>
+						<li>Eigenes Installationsscript</li>
+						<li>Virtuelle Maschine clonen</li>
+					</ol>
+				</section>
+				<section>					
+					<ol>
+						<li>dotnet framework(s) installieren</li>
+						<li>MSBuildtool(s) installieren</li>
+						<li>Portable class library tools installieren </li>
+						<li>dotnet framework deverloper pack installieren</li>
+						<li><font color="red">"C:\Program Files (x86)\MSBuild" von Entwickler Rechner auf Buildrechner kopieren</font></li>
+						<li><font color="red">"C:\Program Files (x86)\Reference Assemblies" von Entwickler Rechner auf Buildrechner kopieren</font></li>
+					</ol>
 				</section>
 				<section>
-					<p>Motivation II: IT Infrastruktur</p>
+					<p>Bauen mit msbuild unter Windows macht keinen Spaß</p>
 				</section>
 				<section>
-					<p>Motivation III: Docker!</p>
-				</section>
-				<section>
-					<p>Ziel:</p>
+					<p>apt-get install dotnet-sdk-2.0.0</p>
 				</section>
 				<section>
 					<p>Docker Grundlagen I: Image, Container</p>
@@ -53,16 +107,22 @@
 					<p>Ergebnis:</p>
 				</section>
 				<section>
-					<p>Was fehlt?</p>
-					<p><font size="5">- networking/https</font></p>
-					<p><font size="5">- echte Orchestrierung</font></p>
-					<p><font size="5">- lastbasiertes automatisches Skalieren</font></p>
+					<p>Einschränkung</p>
+					<div>"Nur" dotnet core basierte web Anwendungen baubar</div>
 				</section>
 				<section>
 					<p>Bewertung</p>
 				</section>
 				<section>
 					<p>Ausblick</p>
+					<div class="longlist">
+						<ul>
+							<li>networking/https</li>
+							<li>echte Orchestrierung</li>
+							<li>lastbasiertes automatisches Skalieren</li>
+							<li> ... </li>
+						</ul>
+					</div>
 				</section>
 			</div>
 		</div>
