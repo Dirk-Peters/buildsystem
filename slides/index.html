@@ -37,32 +37,32 @@
 					<p>Wie lang sollte das Aufsetzen eines Buildservers dauern?</p>
 					<p><font size="5">Ein Docker Erfahrungsbericht</font></p>
 				</section>			
-				<section>
-					<p>The Joel Test</p>
-					<div class="longlist">					
-						<ol>
-							<li>Do you use source control?</li>
-							<li>Can you make a build in one step?</li>
-							<li><font color="red">Do you make daily builds?</font></li>
-							<li>Do you have a bug database?</li>
-							<li>Do you fix bugs before writing new code?</li>
-							<li>Do you have an up-to-date schedule?</li>
-							<li>Do you have a spec?</li>
-							<li>Do programmers have quiet working conditions?</li>
-							<li>Do you use the best tools money can buy?</li>
-							<li>Do you have testers?</li>
-							<li>Do new candidates write code during their interview?</li>
-							<li>Do you do hallway usability testing?</li>
-						</ol>
-					</div>
-					<p class="link">https://www.joelonsoftware.com/2000/08/09/the-joel-test-12-steps-to-better-code/</p>
-				</section>
+				<!-- <section> -->
+					<!-- <p>The Joel Test</p> -->
+					<!-- <div class="longlist">					 -->
+						<!-- <ol> -->
+							<!-- <li>Do you use source control?</li> -->
+							<!-- <li>Can you make a build in one step?</li> -->
+							<!-- <li><font color="red">Do you make daily builds?</font></li> -->
+							<!-- <li>Do you have a bug database?</li> -->
+							<!-- <li>Do you fix bugs before writing new code?</li> -->
+							<!-- <li>Do you have an up-to-date schedule?</li> -->
+							<!-- <li>Do you have a spec?</li> -->
+							<!-- <li>Do programmers have quiet working conditions?</li> -->
+							<!-- <li>Do you use the best tools money can buy?</li> -->
+							<!-- <li>Do you have testers?</li> -->
+							<!-- <li>Do new candidates write code during their interview?</li> -->
+							<!-- <li>Do you do hallway usability testing?</li> -->
+						<!-- </ol> -->
+					<!-- </div> -->
+					<!-- <p class="link">https://www.joelonsoftware.com/2000/08/09/the-joel-test-12-steps-to-better-code/</p> -->
+				<!-- </section> -->
 				<section>					
 					<ol>
 						<li>dotnet framework(s) installieren</li>
 						<li>MSBuildtool(s) installieren</li>
 						<li>Portable class library tools installieren </li>
-						<li>dotnet framework deverloper pack installieren</li>
+						<li>dotnet framework developer pack installieren</li>
 						<li>"C:\Program Files (x86)\MSBuild" von Entwickler Rechner auf Buildrechner kopieren</li>
 						<li>"C:\Program Files (x86)\Reference Assemblies" von Entwickler Rechner auf Buildrechner kopieren</li>
 					</ol>
@@ -86,7 +86,7 @@
 						<li>dotnet framework(s) installieren</li>
 						<li>MSBuildtool(s) installieren</li>
 						<li>Portable class library tools installieren </li>
-						<li>dotnet framework deverloper pack installieren</li>
+						<li>dotnet framework developer pack installieren</li>
 						<li><font color="red">"C:\Program Files (x86)\MSBuild" von Entwickler Rechner auf Buildrechner kopieren</font></li>
 						<li><font color="red">"C:\Program Files (x86)\Reference Assemblies" von Entwickler Rechner auf Buildrechner kopieren</font></li>
 					</ol>
@@ -98,20 +98,82 @@
 					<p>apt-get install dotnet-sdk-2.0.0</p>
 				</section>
 				<section>
-					<p>Docker Grundlagen I: Image, Container</p>
+					<p>Wir bauen uns einen build agent als docker container</p>
+					<pre>
+FROM jetbrains/teamcity-agent
+
+# install dotnet core SDK
+RUN sh -c 'echo "deb [arch=amd64] 
+https://apt-mo.trafficmanager.net/repos/dotnet-release/ 
+xenial main" > /etc/apt/sources.list.d/dotnetdev.list' && \ 
+apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 
+--recv-keys 417A0893 && \ 
+apt-get update && \ 
+apt-get install dotnet-sdk-2.0.0 -y
+					</pre>
+				</section>
+				<section>
+					<pre>docker build teamcity/buildagent -t tc-buildagent</pre>
+					<image href="images/build-tc.jpg"/>
 				</section>
 				<section>
 					<p>Docker Grundlagen II: compose, Networks</p>
+					<pre>
+version: '2'
+
+services:
+ teamcity:
+  restart: unless-stopped
+  image: jetbrains/teamcity-server:latest
+  volumes:
+    - /srv/teamcity/data:/data/teamcity_server/datadir
+    - /srv/teamcity/logs:/opt/teamcity/logs
+  ports:
+   - "8111:8111"
+
+ teamcity_agent1:
+  restart: unless-stopped
+  image: tc-buildagent:latest
+  links:
+   - teamcity:teamcity
+  volumes:
+   - /srv/teamcity/agents/001/conf:/data/teamcity_agent/conf
+   - /var/run/docker.sock:/var/run/docker.sock
+  environment:
+   - SERVER_URL=teamcity:8111
+   - AGENT_NAME="tcagent_docker_v1_001"
+ postgres:
+  restart: unless-stopped
+  image: postgres:latest
+  volumes:
+   - /srv/postgresql/data:/var/lib/postgresql/data
+  environment:
+   - POSTGRES_PASSWORD=buildserver#pw_01
+   - POSTGRES_USER=teamcity
+   - POSTGRES_DB=teamcity
+  ports:
+   - "5432:5432"
+
+					</pre>
 				</section>
 				<section>
-					<p>Ergebnis:</p>
+					<p>Einschränkungen</p>
+					<div class="longlist">
+						<ul>
+							<li>dotnet core/standard</li>
+							<li>Linux</li>
+							<li>Web + Konsolenanwendungen</li>
+							<li>teamcity</li>
+						</ul>
+					</div>
 				</section>
 				<section>
-					<p>Einschränkung</p>
-					<div>"Nur" dotnet core basierte web Anwendungen baubar</div>
-				</section>
-				<section>
-					<p>Bewertung</p>
+					<p>Ergebnis/Erkenntnisse</p>
+					<ul>
+						<li>reproduzierbare Umgebung (linux VM In-House, beim Kunden, Azure)</li>
+						<li>build agent updates jederzeit innerhalb von 30 Sekunden downtime durchführbar</li>
+						<li>docker Dokumentation + Analyse Tools sind sehr hilfreich</li>
+					</ul>
 				</section>
 				<section>
 					<p>Ausblick</p>
